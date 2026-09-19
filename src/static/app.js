@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const participants = Array.isArray(details.participants) ? details.participants : [];
         const spotsLeft = Math.max(details.max_participants - participants.length, 0);
         const participantsList = document.createElement("ul");
+        participantsList.setAttribute("aria-label", "Participants de l’activité");
         participantsList.className = "participants-list";
 
         if (participants.length > 0) {
