@@ -26,12 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
-        const spotsLeft = Math.max(details.max_participants - details.participants.length, 0);
+        const participants = Array.isArray(details.participants) ? details.participants : [];
+        const spotsLeft = Math.max(details.max_participants - participants.length, 0);
         const participantsList = document.createElement("ul");
         participantsList.className = "participants-list";
 
-        if (details.participants.length > 0) {
-          details.participants.forEach((participant) => {
+        if (participants.length > 0) {
+          participants.forEach((participant) => {
             const item = document.createElement("li");
             item.className = "participant-item";
 
@@ -43,7 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
             removeButton.className = "remove-participant";
             removeButton.dataset.activity = name;
             removeButton.dataset.email = participant;
-            removeButton.setAttribute("aria-label", `Unregister ${participant}`);
+            removeButton.title = `Désinscrire ${participant}`;
+            removeButton.setAttribute("aria-label", `Désinscrire ${participant}`);
             removeButton.textContent = "×";
 
             item.appendChild(participantLabel);
@@ -53,25 +55,46 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           const emptyItem = document.createElement("li");
           emptyItem.className = "participant-empty";
-          emptyItem.textContent = "No participants yet.";
+          emptyItem.textContent = "Aucun participant pour le moment.";
           participantsList.appendChild(emptyItem);
         }
 
         const detailsContainer = document.createElement("div");
         detailsContainer.className = "participants-section";
 
-        const participantsTitle = document.createElement("strong");
-        participantsTitle.textContent = "Participants:";
+        const participantsTitle = document.createElement("h5");
+        participantsTitle.className = "participants-heading";
+        participantsTitle.textContent = "Participants";
+        participantsList.setAttribute("aria-label", "Participants de l’activité");
+
+        const title = document.createElement("h4");
+        title.textContent = name;
+
+        const description = document.createElement("p");
+        const descriptionLabel = document.createElement("strong");
+        descriptionLabel.textContent = "Description:";
+        description.appendChild(descriptionLabel);
+        description.appendChild(document.createTextNode(` ${details.description}`));
+
+        const schedule = document.createElement("p");
+        const scheduleLabel = document.createElement("strong");
+        scheduleLabel.textContent = "Schedule:";
+        schedule.appendChild(scheduleLabel);
+        schedule.appendChild(document.createTextNode(` ${details.schedule}`));
+
+        const availability = document.createElement("p");
+        const availabilityLabel = document.createElement("strong");
+        availabilityLabel.textContent = "Availability:";
+        availability.appendChild(availabilityLabel);
+        availability.appendChild(document.createTextNode(` ${spotsLeft} spots left`));
 
         detailsContainer.appendChild(participantsTitle);
         detailsContainer.appendChild(participantsList);
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
+        activityCard.appendChild(title);
+        activityCard.appendChild(description);
+        activityCard.appendChild(schedule);
+        activityCard.appendChild(availability);
         activityCard.appendChild(detailsContainer);
 
         activitiesList.appendChild(activityCard);

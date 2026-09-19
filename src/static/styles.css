@@ -78,18 +78,25 @@ section h3 {
   margin-top: 12px;
 }
 
-.participants-section strong {
-  display: inline-block;
+.participants-heading {
+  color: #1a237e;
+  font-size: 1rem;
   margin-bottom: 8px;
 }
 
 .participants-list {
   list-style: none;
-  margin-top: 8px;
+  margin: 8px 0 0;
   padding-left: 0;
+  border-top: 1px solid #d9def5;
+  padding-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.participants-list li {
+  list-style: none;
 }
 
 .participant-item {
