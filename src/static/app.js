@@ -27,29 +27,52 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = Math.max(details.max_participants - details.participants.length, 0);
-        const participantList = details.participants.length
-          ? details.participants
-              .map(
-                (participant) => `
-                  <li class="participant-item">
-                    <span>${participant}</span>
-                    <button type="button" class="remove-participant" data-activity="${name}" data-email="${participant}" aria-label="Unregister ${participant}">×</button>
-                  </li>
-                `
-              )
-              .join("")
-          : "<li class=\"participant-empty\">No participants yet.</li>";
+        const participantsList = document.createElement("ul");
+        participantsList.className = "participants-list";
+
+        if (details.participants.length > 0) {
+          details.participants.forEach((participant) => {
+            const item = document.createElement("li");
+            item.className = "participant-item";
+
+            const participantLabel = document.createElement("span");
+            participantLabel.textContent = participant;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "remove-participant";
+            removeButton.dataset.activity = name;
+            removeButton.dataset.email = participant;
+            removeButton.setAttribute("aria-label", `Unregister ${participant}`);
+            removeButton.textContent = "×";
+
+            item.appendChild(participantLabel);
+            item.appendChild(removeButton);
+            participantsList.appendChild(item);
+          });
+        } else {
+          const emptyItem = document.createElement("li");
+          emptyItem.className = "participant-empty";
+          emptyItem.textContent = "No participants yet.";
+          participantsList.appendChild(emptyItem);
+        }
+
+        const detailsContainer = document.createElement("div");
+        detailsContainer.className = "participants-section";
+
+        const participantsTitle = document.createElement("strong");
+        participantsTitle.textContent = "Participants:";
+
+        detailsContainer.appendChild(participantsTitle);
+        detailsContainer.appendChild(participantsList);
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          <div class="participants-section">
-            <strong>Participants:</strong>
-            <ul class="participants-list">${participantList}</ul>
-          </div>
         `;
+        activityCard.appendChild(detailsContainer);
 
         activitiesList.appendChild(activityCard);
 
@@ -109,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
+        `/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`,
         {
           method: "DELETE",
         }

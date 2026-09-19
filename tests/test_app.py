@@ -52,3 +52,21 @@ def test_unregister_removes_participant():
     delete_response = client.delete(f"/activities/{activity_name}/signup?email={email}")
     assert delete_response.status_code == 200
     assert email.lower() not in client.get("/activities").json()[activity_name]["participants"]
+
+
+def test_signup_rejects_duplicate_email_case_insensitive():
+    activity_name = "Chess Club"
+    email = "  existing.student@mergington.edu  "
+    reset_activity(activity_name, ["existing.student@mergington.edu"])
+
+    response = client.post(f"/activities/{activity_name}/signup?email={email}")
+    assert response.status_code == 400
+    assert "already signed up" in response.json()["detail"].lower()
+
+
+def test_signup_requires_email_value():
+    activity_name = "Gym Class"
+    response = client.post(f"/activities/{activity_name}/signup?email=")
+
+    assert response.status_code == 400
+    assert "email is required" in response.json()["detail"].lower()

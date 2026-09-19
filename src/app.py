@@ -21,7 +21,13 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 
 
 def normalize_email(email: str) -> str:
-    return email.strip().lower()
+    if email is None:
+        return ""
+    return str(email).strip().lower()
+
+
+def get_normalized_participants(activity: dict) -> set[str]:
+    return {normalize_email(participant) for participant in activity.get("participants", [])}
 
 
 # In-memory activity database
@@ -105,7 +111,7 @@ def signup_for_activity(activity_name: str, email: str = Query(...)):
     if not normalized_email:
         raise HTTPException(status_code=400, detail="Email is required")
 
-    if normalized_email in {normalize_email(participant) for participant in activity["participants"]}:
+    if normalized_email in get_normalized_participants(activity):
         raise HTTPException(status_code=400, detail="Student is already signed up")
 
     if len(activity["participants"]) >= activity["max_participants"]:
@@ -124,7 +130,10 @@ def unregister_for_activity(activity_name: str, email: str = Query(...)):
     activity = activities[activity_name]
     normalized_email = normalize_email(email)
 
-    if normalized_email not in {normalize_email(participant) for participant in activity["participants"]}:
+    if not normalized_email:
+        raise HTTPException(status_code=400, detail="Email is required")
+
+    if normalized_email not in get_normalized_participants(activity):
         raise HTTPException(status_code=404, detail="Student is not signed up for this activity")
 
     activity["participants"] = [
